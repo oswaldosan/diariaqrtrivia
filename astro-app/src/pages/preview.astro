@@ -1,0 +1,201 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { APP_NAME, isPreviewAllowed } from '../lib/config';
+import { renderDecor } from '../lib/decor';
+
+if (!isPreviewAllowed()) {
+  return new Response(
+    'Preview desactivada. Creá dev.enable en la raíz del proyecto o LDL_DEV=1.\n',
+    { status: 404, headers: { 'Content-Type': 'text/plain; charset=UTF-8' } }
+  );
+}
+
+const screens = ['index', 'trivia', 'feedback-ok', 'feedback-bad', 'result-win', 'result-lose'] as const;
+let screen = Astro.url.searchParams.get('screen') ?? 'index';
+if (!screens.includes(screen as (typeof screens)[number])) screen = 'index';
+
+const decorHtml = renderDecor(`preview-${screen}`);
+---
+
+<Layout title={`${APP_NAME} — Preview (${screen})`} bodyClass={`page-preview page-${screen}`}>
+  <div set:html={decorHtml} />
+  <div class="container">
+    <div class="header">
+      <div class="logo-wrap">
+        <img src="/assets/logo.png" alt={APP_NAME} class="logo logo--trazo" width="200" />
+      </div>
+      <p class="header-slogan">¡Soñá y Ganá!</p>
+    </div>
+
+    {
+      screen === 'index' && (
+        <div class="card">
+          <h2>Registrate para participar</h2>
+          <p style="color:#888;font-size:.85rem;margin:-8px 0 16px;">(preview — formulario no envía)</p>
+          <div class="form-group">
+            <label>Nombre Completo <span class="required">*</span></label>
+            <input type="text" readonly value="Nombre de ejemplo" />
+          </div>
+          <div class="form-group">
+            <label>Número de Identidad <span class="required">*</span></label>
+            <input type="text" readonly value="0801-1990-12345" />
+          </div>
+          <div class="form-group">
+            <label>Correo Electrónico <span class="optional">(opcional)</span></label>
+            <input type="email" readonly value="correo@ejemplo.com" />
+          </div>
+          <div class="form-group">
+            <label>Número de Teléfono <span class="required">*</span></label>
+            <input type="tel" readonly value="9999-9999" />
+          </div>
+          <a href="/preview?screen=trivia" class="btn btn-primary">Ir a trivia (preview)</a>
+        </div>
+      )
+    }
+
+    {
+      screen === 'trivia' && (
+        <>
+          <div class="card">
+            <div class="question-counter">Pregunta 2 de 6</div>
+            <div class="progress-bar">
+              <div class="fill" style="width:16.666%" />
+            </div>
+            <div class="question-text">
+              Si jugás L30 en La Diaria y tu número sale favorecido, ¿cuánto ganás?
+            </div>
+            <div class="ux-stagger">
+              <a href="/preview?screen=feedback-ok" class="answer-option">L50</a>
+              <a href="/preview?screen=feedback-bad" class="answer-option">L100</a>
+              <a href="/preview?screen=feedback-ok" class="answer-option">L1,800</a>
+              <a href="/preview?screen=feedback-bad" class="answer-option">L1,000</a>
+            </div>
+          </div>
+          <p class="playing-as">Jugando como: Participante Demo</p>
+        </>
+      )
+    }
+
+    {
+      screen === 'feedback-ok' && (
+        <>
+          <div class="card card--feedback">
+            <div class="question-counter">Pregunta 2 de 6</div>
+            <div class="progress-bar">
+              <div class="fill" style="width:33.333%" />
+            </div>
+            <div class="question-text">
+              Si jugás L30 en La Diaria y tu número sale favorecido, ¿cuánto ganás?
+            </div>
+            <div class="feedback-banner feedback-banner--ok">
+              <span class="feedback-banner__icon" aria-hidden="true">✓</span>
+              <span class="feedback-banner__title">¡Correcto!</span>
+            </div>
+            <ul class="feedback-answers" role="list">
+              <li class="feedback-answer feedback-answer--correct feedback-answer--picked feedback-answer--picked-good">
+                <span class="feedback-answer__badge">Correcta</span>
+                <span class="feedback-answer__badge feedback-answer__badge--good">Tu respuesta</span>
+                <span class="feedback-answer__text">L1,800</span>
+              </li>
+              <li class="feedback-answer">
+                <span class="feedback-answer__text">L50</span>
+              </li>
+              <li class="feedback-answer">
+                <span class="feedback-answer__text">L100</span>
+              </li>
+              <li class="feedback-answer">
+                <span class="feedback-answer__text">L1,000</span>
+              </li>
+            </ul>
+            <a href="/preview?screen=trivia" class="btn btn-primary feedback-continue-form">Siguiente pregunta (preview)</a>
+          </div>
+          <p class="playing-as">Jugando como: Participante Demo</p>
+        </>
+      )
+    }
+
+    {
+      screen === 'feedback-bad' && (
+        <>
+          <div class="card card--feedback card--game-over">
+            <div class="question-counter">Pregunta 3 de 6</div>
+            <div class="progress-bar">
+              <div class="fill" style="width:33.333%" />
+            </div>
+            <div class="question-text">¿Cuál es el slogan oficial de La Diaria Loto?</div>
+            <div class="feedback-banner feedback-banner--bad">
+              <span class="feedback-banner__icon" aria-hidden="true">✗</span>
+              <div class="feedback-banner__stack">
+                <span class="feedback-banner__title">Perdiste</span>
+                <span class="feedback-banner__subtitle">Un solo error termina la partida. No podés seguir.</span>
+              </div>
+            </div>
+            <ul class="feedback-answers" role="list">
+              <li class="feedback-answer">
+                <span class="feedback-answer__text">Jugá y Multiplicá</span>
+              </li>
+              <li class="feedback-answer feedback-answer--wrong">
+                <span class="feedback-answer__badge feedback-answer__badge--bad">Tu respuesta</span>
+                <span class="feedback-answer__text">Tu número, tu suerte</span>
+              </li>
+              <li class="feedback-answer feedback-answer--correct">
+                <span class="feedback-answer__badge">Correcta</span>
+                <span class="feedback-answer__text">¡Soñá y Ganá!</span>
+              </li>
+              <li class="feedback-answer">
+                <span class="feedback-answer__text">Elegí y Ganá</span>
+              </li>
+            </ul>
+            <div class="feedback-extra">
+              <p class="feedback-extra__label">💬 Por qué no era</p>
+              <p class="feedback-extra__text">¡Todo empieza con un sueño! Por eso existe la Guía de los Sueños 😴✨</p>
+            </div>
+            <a href="/preview?screen=result-lose" class="btn btn-primary feedback-continue-form">Ver resultado (preview)</a>
+          </div>
+          <p class="playing-as">Jugando como: Participante Demo</p>
+        </>
+      )
+    }
+
+    {
+      screen === 'result-win' && (
+        <div class="card result-winner">
+          <div class="result-icon">&#127881;&#127942;&#127881;</div>
+          <div class="result-score">6 / 6</div>
+          <div class="result-message">
+            <strong>¡Felicidades, Participante Demo!</strong>
+            <br />
+            ¡Acertaste todas las preguntas! &#127882;
+          </div>
+          <a href="/preview?screen=index" class="btn btn-primary">Volver al inicio</a>
+        </div>
+      )
+    }
+
+    {
+      screen === 'result-lose' && (
+        <div class="card result-loser">
+          <div class="result-icon">&#128532;</div>
+          <div class="result-score">2 / 6</div>
+          <div class="result-message">
+            <strong>Participante Demo</strong>, la partida terminó.
+            <br />
+            En esta trivia <strong>un solo error elimina</strong>: no podés fallar ninguna pregunta.
+            <div class="result-hint">¡Todo empieza con un sueño! Por eso existe la Guía de los Sueños 😴✨</div>
+          </div>
+          <a href="/preview?screen=index" class="btn btn-primary">Volver al inicio</a>
+        </div>
+      )
+    }
+  </div>
+
+  <nav class="preview-nav" aria-label="Vistas de preview">
+    <span>Demo</span>
+    <a href="/preview?screen=index" aria-current={screen === 'index' ? 'page' : undefined}>Registro</a>
+    <a href="/preview?screen=trivia" aria-current={screen === 'trivia' ? 'page' : undefined}>Trivia</a>
+    <a href="/preview?screen=feedback-ok" aria-current={screen === 'feedback-ok' ? 'page' : undefined}>OK</a>
+    <a href="/preview?screen=feedback-bad" aria-current={screen === 'feedback-bad' ? 'page' : undefined}>Perdió</a>
+    <a href="/preview?screen=result-win" aria-current={screen === 'result-win' ? 'page' : undefined}>Ganó</a>
+    <a href="/preview?screen=result-lose" aria-current={screen === 'result-lose' ? 'page' : undefined}>Perdió final</a>
+  </nav>
+</Layout>

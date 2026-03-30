@@ -1,0 +1,64 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { APP_NAME } from '../lib/config';
+import { escapeHtml } from '../lib/html';
+import { renderDecor } from '../lib/decor';
+import { getTriviaCookie, clearTriviaCookie } from '../lib/session';
+
+const trivia = await getTriviaCookie(Astro.cookies);
+if (!trivia) return Astro.redirect('/');
+
+const total = trivia.questionIds.length;
+const isWinner = trivia.score === total;
+const eliminated = trivia.lossHint != null && String(trivia.lossHint).trim() !== '';
+const lossHint = eliminated ? String(trivia.lossHint).trim() : '';
+const score = trivia.score;
+const userName = trivia.userName;
+
+await clearTriviaCookie(Astro.cookies);
+
+const decorHtml = renderDecor('result');
+---
+
+<Layout title={`${APP_NAME} - Resultado`} bodyClass="page-result">
+  <div set:html={decorHtml} />
+  <div class="container">
+    <div class="header">
+      <div class="logo-wrap">
+        <img src="/assets/logo.png" alt={APP_NAME} class="logo logo--trazo" width="200" />
+      </div>
+      <p class="header-slogan">¡Soñá y Ganá!</p>
+    </div>
+    <div class={`card ${isWinner ? 'result-winner' : 'result-loser'}`}>
+      <div class="result-icon">{isWinner ? '🎉🏆🎉' : '😒'}</div>
+      <div class="result-score">{score} / {total}</div>
+      <div class="result-message">
+        {
+          isWinner ? (
+            <>
+              <strong>¡Felicidades, {escapeHtml(userName)}!</strong>
+              <br />
+              ¡Acertaste todas las preguntas! &#127882;
+            </>
+          ) : eliminated ? (
+            <>
+              <strong>{escapeHtml(userName)}</strong>, la partida terminó.
+              <br />
+              En esta trivia <strong>un solo error elimina</strong>: no podés fallar ninguna pregunta.
+              {lossHint !== '' && (
+                <div class="result-hint" set:html={escapeHtml(lossHint).replace(/\n/g, '<br />')} />
+              )}
+            </>
+          ) : (
+            <>
+              <strong>{escapeHtml(userName)}</strong>, no lograste acertar todas.
+              <br />
+              Obtuviste {score} de {total} respuestas correctas.
+            </>
+          )
+        }
+      </div>
+      <a href="/" class="btn btn-primary">Volver al inicio</a>
+    </div>
+  </div>
+</Layout>

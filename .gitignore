@@ -1,0 +1,14 @@
+# Preview local (Astro: astro-app/dev.enable o LDL_DEV=1)
+dev.enable
+
+# Dependencies y build
+node_modules/
+dist/
+.astro/
+
+# Secretos (usar .env.example como plantilla)
+.env
+.env.*
+!.env.example
+
+.DS_Store

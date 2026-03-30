@@ -1,0 +1,30 @@
+---
+import { APP_NAME } from '../lib/config';
+
+interface Props {
+  title: string;
+  bodyClass?: string;
+}
+
+const { title, bodyClass = '' } = Astro.props;
+const cssV = import.meta.env.DEV ? Date.now() : '1';
+---
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#13a538" />
+    <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href={`/assets/style.css?v=${cssV}`} />
+  </head>
+  <body class={`page ${bodyClass}`}>
+    <slot />
+  </body>
+</html>
