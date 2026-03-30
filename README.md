@@ -1,63 +1,47 @@
-# La Diaria Loto — Trivia
+# La Diaria Loto — Trivia QR
 
-Aplicación web (**Astro** + **Node** + **MySQL**) para registrar participantes, trivia de varias preguntas, resultados y panel de administración con exportación CSV.
-
-La app vive en **`astro-app/`** (el stack PHP anterior fue retirado).
+Aplicación web en **PHP** y **MySQL**: registro, trivia (un error elimina), resultados, admin y export CSV.
 
 ## Requisitos
 
-- Node.js 20+ (recomendado 22+ para herramientas recientes)
+- PHP 8+ con extensión `mysqli`
 - MySQL 5.7+ / MariaDB 10+
 
 ## Base de datos
 
-Importar **`schema.sql`** en tu base (crea tablas y puede incluir preguntas según el archivo).
+Importar **`schema.sql`** (phpMyAdmin o `mysql -u USER -p DB < schema.sql`).
 
-Variables de entorno: ver **`astro-app/.env.example`**.
+## Configuración
 
-## Desarrollo
+Editar **`config.php`**: `DB_USER`, `DB_PASS`, `DB_NAME`, o definir variables de entorno `DB_HOST`, `DB_USER`, `DB_PASS`, `DB_NAME`, `DB_PORT`.
+
+En **Linux/WSL**, con `dev.enable` o `LDL_DEV=1` el host por defecto es `127.0.0.1` (evita error de socket con `localhost`).
+
+## Vista previa sin MySQL
+
+1. `touch dev.enable` o `export LDL_DEV=1`
+2. `php -S localhost:8080`
+3. Abrir **http://localhost:8080/preview.php**
+
+En producción no subas `dev.enable`.
+
+## Estructura
+
+| Archivo | Rol |
+|---------|-----|
+| `index.php` | Registro |
+| `trivia.php` | Preguntas y feedback |
+| `result.php` | Resultado |
+| `admin.php` | Panel y CSV |
+| `preview.php` | Demo de diseño |
+| `config.php` | BD, sesión, assets |
+| `includes/decor.php` | Decoración |
+| `assets/` | CSS, logo, animales |
+
+## Local
 
 ```bash
-cd astro-app
-cp .env.example .env
-# Editar .env: DB_* y SESSION_SECRET
-npm install
-npm run dev
+php -S localhost:8080
 ```
 
-Abrir **http://localhost:4321**
-
-### Preview de diseño (sin MySQL)
-
-Archivo vacío **`astro-app/dev.enable`** o `LDL_DEV=1` en `.env`. Luego **http://localhost:4321/preview**
-
-## Producción
-
-```bash
-cd astro-app
-npm run build
-node ./dist/server/entry.mjs
-```
-
-## Estructura útil
-
-| Ruta | Rol |
-|------|-----|
-| `astro-app/` | Código fuente Astro, APIs y `public/assets/` (CSS, logo, animales) |
-| `schema.sql` | Esquema y datos iniciales MySQL |
-
-## Línea gráfica
-
-Referencia de colores y trazos: ver comentarios en `astro-app/public/assets/style.css` (verde `#13a538`, `#76b82a`, etc.).
-
-## Ideas de mejora
-
-- Credenciales solo por variables de entorno en producción.
-- HTTPS y cabeceras de seguridad.
-- Proteger `/admin` con autenticación.
-- Rate limiting en el registro.
-
-## Licencia / uso
-
-Proyecto interno para campaña **La Diaria Loto**. Ajustar según las políticas de tu organización.
-# diariaqrtrivia
+Abrir `http://localhost:8080/index.php`
